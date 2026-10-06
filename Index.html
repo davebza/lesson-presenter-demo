@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <?!= include('Styles'); ?>
+</head>
+<body>
+<main>
+  <header>
+    <div><small>LESSON PRESENTER · PUBLIC DEMO</small><h1 id="title">Loading…</h1><p id="className"></p></div>
+    <button id="random">Random</button>
+  </header>
+  <section class="objective"><span>LEARNING OBJECTIVE</span><h2 id="objective"></h2></section>
+  <section id="sequence" class="sequence"></section>
+  <section class="stage"><small>CURRENT ACTIVITY</small><h2 id="activityTitle">Select a stage</h2><p id="activityPrompt">The lesson sequence is driven by structured data.</p></section>
+</main>
+<dialog id="picker"><small>YOUR TURN:</small><h2 id="participant"></h2><button onclick="picker.close()">Close</button></dialog>
+<script>
+let model;
+google.script.run.withSuccessHandler(data => {
+  model=data;
+  title.textContent=data.lesson.title;
+  className.textContent=data.class.name;
+  objective.textContent=data.lesson.objective;
+  sequence.innerHTML=data.lesson.sequence.map((s,i)=>`<button class="step" data-i="${i}"><b>0${i+1}</b><span>${s.label}</span></button>`).join('');
+  document.querySelectorAll('.step').forEach(b=>b.onclick=()=>showStage(+b.dataset.i));
+}).getLessonData();
+
+function showStage(i){
+  const s=model.lesson.sequence[i];
+  activityTitle.textContent=s.label;
+  activityPrompt.textContent=s.prompt;
+}
+random.onclick=()=>{
+  participant.textContent=model.participants[Math.floor(Math.random()*model.participants.length)];
+  picker.showModal();
+};
+</script>
+</body></html>
